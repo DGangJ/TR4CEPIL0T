@@ -3,7 +3,7 @@
 <p align="center"><b>Dot-matrix, TRON-style layout for EdgeTX FPV radios</b><br>
 RadioMaster TX15 / TX15 Max · widgets · theme · LED ring effects · sounds</p>
 
-<p align="center">[![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20TR4CEPIL0T-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/tr4cepil0t)</p>
+[![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20TR4CEPIL0T-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/tr4cepil0t)
 
 <p align="center">
 <img src="docs/images/page1_trails.png" width="400" alt="Page 1 - gimbal trails">
