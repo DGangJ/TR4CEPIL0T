@@ -145,7 +145,7 @@ and the [CHANGELOG](CHANGELOG.md).
 
 - Code: [GNU GPL v3.0](LICENSE). You may use, modify and share it; modified versions must stay under the
   same licence and keep the credits.
-- The **TR4CEPIL0T** name and logo, and the iBass&FPV and Squadding Quads splash images, are not covered by
+- The **TR4CEPIL0T** name and logo, and the iBass&FPV splash images, are not covered by
   the GPL: please don't use them for other projects or products.
 - Use at your own risk. Always check your radio, failsafe and model setup before flying.
   Not affiliated with RadioMaster, EdgeTX, ExpressLRS, Betaflight or INAV.
