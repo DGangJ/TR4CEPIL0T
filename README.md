@@ -3,7 +3,7 @@
 <p align="center"><b>Dot-matrix, TRON-style layout for EdgeTX FPV radios</b><br>
 EdgeTX colour radios (TX15, T15, TX16S, V15, PA01, TX16S MK3…) · FrSky Ethos (beta) · widgets · theme · LED effects · sounds</p>
 
-[![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20TR4CEPIL0T-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/tr4cepil0t)
+<p align="center"><a href="https://ko-fi.com/tr4cepil0t"><img src="https://img.shields.io/badge/Ko--fi-Support%20TR4CEPIL0T-FF5E5B?logo=ko-fi&logoColor=white" alt="Support on Ko-fi"></a></p>
 
 <p align="center">
 <img src="docs/images/page1_trails.png" width="400" alt="Page 1 - gimbal trails">
@@ -187,7 +187,7 @@ and the [CHANGELOG](CHANGELOG.md).
 
 - Code: [GNU GPL v3.0](LICENSE). You may use, modify and share it; modified versions must stay under the
   same licence and keep the credits.
-- The **TR4CEPIL0T** name and logo, and the iBass&FPV splash images, are not covered by
+- The **TR4CEPIL0T** name and logo, and the iBass&FPV and Squadding Quads splash images, are not covered by
   the GPL: please don't use them for other projects or products.
 - Use at your own risk. Always check your radio, failsafe and model setup before flying.
   Not affiliated with RadioMaster, EdgeTX, ExpressLRS, Betaflight or INAV.
