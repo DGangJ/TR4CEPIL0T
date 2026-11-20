@@ -9,7 +9,7 @@ local options = {
 local function find(name, label)
   local info = getFieldInfo and getFieldInfo(name)
   if info == nil or info.id == nil then return nil end
-  return { id = info.id, label = label or string.upper(info.name or name) }
+  return { id = info.id, key = name, label = label or string.upper(info.name or name) }
 end
 
 local function collect(list)
@@ -22,16 +22,48 @@ local function collect(list)
 end
 
 local STICKS = { { "ail", "ROLL" }, { "ele", "PITCH" }, { "thr", "THR" }, { "rud", "YAW" } }
-local POTS = { { "s1" }, { "s2" }, { "s3" }, { "s4" }, { "ls", "LS" }, { "rs", "RS" }, { "ext1" }, { "ext2" } }
+-- every pot / slider name used by EdgeTX colour radios; only those the radio has are shown
+local POTS = { { "s1" }, { "s2" }, { "s3" }, { "s4" }, { "p1" }, { "p2" }, { "p3" }, { "6pos", "6POS" },
+               { "ls", "LS" }, { "rs", "RS" }, { "sl1" }, { "sl2" }, { "ext1" }, { "ext2" } }
 local GYROS = { { "tltx", "TLT X" }, { "tlty", "TLT Y" }, { "tiltx", "TLT X" }, { "tilty", "TLT Y" },
                 { "gyrx", "GYR X" }, { "gyry", "GYR Y" } }
 local SWITCHES = {}
-for _, c in ipairs({ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" }) do SWITCHES[#SWITCHES + 1] = { "s" .. c } end
+for _, c in ipairs({ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }) do
+  SWITCHES[#SWITCHES + 1] = { "s" .. c }
+end
 for i = 1, 6 do SWITCHES[#SWITCHES + 1] = { "sw" .. i } end
--- 2-position switches (the others are 3-position)
--- 3-position switches are detected automatically. Each switch starts as 2-position and becomes 3-position
--- as soon as it is seen in the middle position (works on any radio, e.g. TX15 or PA01)
+-- Number of positions: read from the radio's switch list when possible (detectPositions).
+-- Fallback: each switch starts as 2-position and becomes 3-position when seen in the middle.
 local THREE_POS = {}
+
+-- The radio menus (and the switches() iterator, EdgeTX 2.6+) only list the positions a switch really has:
+-- a 2POS switch has no middle position and a switch set to "None" has none. Counting the listed positions
+-- of each switch ("SA" + up/middle/down) gives its type; switches with no positions are hidden.
+local function detectPositions(list)
+  if type(switches) ~= "function" then return list end
+  local count = {}
+  local ok = pcall(function()
+    for _, name in switches() do
+      if type(name) == "string" then
+        local base = string.match(name, "^(%w+)")
+        if base then base = string.upper(base); count[base] = (count[base] or 0) + 1 end
+      end
+    end
+  end)
+  if not ok then return list end
+  local matched = 0
+  for _, s in ipairs(list) do
+    if count[string.upper(s.label)] or count[string.upper(s.key)] then matched = matched + 1 end
+  end
+  if matched == 0 then return list end          -- names not recognised: keep the fallback
+  local out = {}
+  for _, s in ipairs(list) do
+    local n = count[string.upper(s.label)] or count[string.upper(s.key)] or 0
+    if n >= 3 then THREE_POS[s.id] = true end
+    if n >= 2 then s.fixed = true; out[#out + 1] = s end
+  end
+  return out
+end
 
 -- extra telemetry (ELRS / Crossfire + Betaflight): { sensor, label, format, short label }
 local TELEM = {
@@ -50,7 +82,7 @@ local function setup(widget, options)
     widget.sticks = collect(STICKS)
     widget.pots = collect(POTS)
     widget.gyro = collect(GYROS)
-    widget.sw = collect(SWITCHES)
+    widget.sw = detectPositions(collect(SWITCHES))
     widget.scan = (#widget.gyro == 0) and 1 or nil   -- gyro: search by name if not found
   end
 end
@@ -134,6 +166,7 @@ local function refresh(widget, event, touchState)
   local sepY, live = drawTop(widget, z, o, blinkOff, g, lh)
 
   local compact = z.w < 400
+  local sc = math.max(1, z.w / 480)                 -- extra scale on big screens (800x480)
   local cp = compact and 3 or math.max(3, g - 1)   -- bar cell pitch
   local cd = math.max(2, cp - 2)      -- size of each cell (~3 px)
   local yMax = z.y + z.h - lh - 2
@@ -161,17 +194,18 @@ local function refresh(widget, event, touchState)
   y = sepY + 8
   if #widget.sw > 0 then
     y = header(x1, y, lh, "SWITCHES")
-    local tileW = compact and 44 or 46
+    local perRow0 = (#widget.sw > 8 and not compact) and 4 or (compact and 3 or 4)
+    local tileW = math.max(compact and 44 or 46, math.floor(w1 / perRow0))
     local perRow = math.max(1, math.floor(w1 / tileW))
-    local dp = math.max(3, math.floor((lh + 2) / 3))   -- position dot pitch
+    local dp = math.max(3, math.floor((lh + 2) / 3 * sc))   -- position dot pitch
     for i, s in ipairs(widget.sw) do
       local c = (i - 1) % perRow
       local tx = x1 + c * tileW
       local v = getValue(s.id)
       if type(v) ~= "number" then v = 0 end
       lcd.drawText(tx, y, s.label, SMLSIZE + LABEL)
-      local dx = tx + 30
-      if v > -300 and v < 300 then THREE_POS[s.id] = true end
+      local dx = tx + math.floor(30 * sc)
+      if not s.fixed and v > -300 and v < 300 then THREE_POS[s.id] = true end
       if not THREE_POS[s.id] then
         -- 2 positions: only the top and bottom dots
         local pos = (v < 0) and 1 or 3

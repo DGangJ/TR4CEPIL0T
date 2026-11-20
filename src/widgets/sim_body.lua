@@ -189,7 +189,7 @@ local function refresh(widget, event, touchState)
   lcd.drawLine(z.x + 12, sepY, z.x + z.w - 13, sepY, DOTTED, SEP)
 
   -- ---------- bottom: arm state, virtual pack, date and time
-  local bg = g
+  local bg = (z.w < 400) and math.max(3, g - 1) or g   -- compact screens: smaller digits so the 3 blocks fit
   local bd = math.max(2, bg - 1)
   local vy = z.y + z.h - 5 * bg - 10
   local ly = vy - lh - 3
@@ -209,7 +209,7 @@ local function refresh(widget, event, touchState)
   local right = z.x + z.w - 18
   local clk = clockText()
   local kx = right - dotWidth(clk, bg)
-  lcd.drawText(kx, ly, "TIME", SMLSIZE + LABEL)
+  if z.w >= 400 then lcd.drawText(kx, ly, "TIME", SMLSIZE + LABEL) end   -- compact: the date alone
   local dte = dateText()
   dotText(dte, right - dotWidth(dte, 3), ly + 1, 3, 2, ORANGE)
   dotText(clk, kx, vy, bg, bd, VALUE)

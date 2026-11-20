@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "src", "leds"))
 sys.path.insert(0, os.path.join(ROOT, "src", "art"))
-from config import VARIANTS, DEFAULT_BUILD, VERSION, KOFI_URL, REPO_URL, LICENSE
+from config import VARIANTS, DEFAULT_BUILD, GLOBAL_BUILD, VERSION, ETHOS_VERSION, KOFI_URL, REPO_URL, LICENSE
 import leds
 from PIL import Image
 
@@ -39,11 +39,12 @@ def credits(prefix):
 def build_readme(out, v):
     w = v["widgets"]
     txt = """TR4CEPIL0T v{ver} - EdgeTX dot-matrix layout for FPV radios
-{brand} pack ({sw}x{sh} screen, RadioMaster TX15 / TX15 Max)
+{brand} {kind} for {sw}x{sh} colour radios (EdgeTX 2.11 or newer)
+Radios: {radios}
 
 INSTALL
 1. Back up your SD card.
-2. Copy every folder of this pack (WIDGETS, IMAGES, SCRIPTS, THEMES, SOUNDS) to the
+2. Copy every folder of this pack ({folders}) to the
    root of the radio SD card, merging with the existing folders.
 3. Restart the radio.
 
@@ -53,15 +54,17 @@ SET UP
   sliders off, widget {trails} (page 1). Add a second screen with {inputs} (page 2).
 - Simulator model: a screen with {sim}.
 - Widget options (colours, stick mode, alerts): long press the widget > Widget settings.
-- LED effects: Special Functions > RGB leds > choose a script (e.g. iOrbit, iStick).
-- Sounds: Special Functions > Play Track (SOUNDS/pt; move them to SOUNDS/en for an
+{leds}- Sounds: Special Functions > Play Track (SOUNDS/pt; move them to SOUNDS/en for an
   English voice pack).
 - Alternative splash screens: IMAGES/SPLASH (copy one over IMAGES/splash.png).
 
 Use at your own risk. Always check the radio before flying.
 Not affiliated with RadioMaster or EdgeTX.
 
-""".format(sw=v["screen"][0], sh=v["screen"][1], ver=VERSION, brand=v["brand"], theme=v["theme"]["name"], trails=w["trails"],
+""".format(kind="Global EdgeTX pack" if v.get("global_pack") else "dedicated pack",
+           folders=", ".join(f for f in ("WIDGETS", "IMAGES", "SCRIPTS", "THEMES", "SOUNDS") if f != "SCRIPTS" or v.get("leds")),
+           leds="- LED effects: Special Functions > RGB leds > choose a script (e.g. iOrbit, iStick).\n" if v.get("leds") else "",
+           radios=v.get("radios", ""), sw=v["screen"][0], sh=v["screen"][1], ver=VERSION, brand=v["brand"], theme=v["theme"]["name"], trails=w["trails"],
            inputs=w["inputs"], sim=w.get("sim") or "-")
     open(os.path.join(out, "README.txt"), "w").write(txt + credits(""))
 
@@ -86,7 +89,7 @@ def build_widgets(out, v):
         body = body.replace('"TPSim"', '"%s"' % (w.get("sim") or "TPSim"))
         body = body.replace('"SQTrails"', '"%s"' % w["trails"]).replace('"SQInputs"', '"%s"' % w["inputs"]).replace("SQTrails", w["trails"])
         hdr = ("-- %s  (/WIDGETS/%s/main.lua)  -  %s\n-- %s\n" % (name, folder, v["brand"], desc)) + credits("-- ") + (
-               "-- Works on 480x320 (TX15) and 320x240 (PA01) screens: the layout adapts automatically.\n"
+               "-- Adapts to 480x320, 480x272, 320x240 and 800x480 colour screens (EdgeTX 2.11+).\n"
                "-- Use on a screen with a Full screen (1x1) layout, top bar and sliders turned off.\n\n")
         d = os.path.join(out, "WIDGETS", folder)
         os.makedirs(d, exist_ok=True)
@@ -129,15 +132,38 @@ def build_theme(out, v, splash_im):
         lines.append("  %-11s 0x%06X" % (k + ":", val))
     open(os.path.join(d, "theme.yml"), "w").write("\n".join(lines) + "\n")
     art = os.path.join(SRC, "art", "theme")
-    shutil.copy(os.path.join(art, "background_%dx%d.png" % (W, H)), os.path.join(d, "background_%dx%d.png" % (W, H)))
+    background(W, H).save(os.path.join(d, "background_%dx%d.png" % (W, H)))
     shutil.copy(os.path.join(art, t["logo"]), os.path.join(d, "logo.png"))
-    for i in (1, 2):
-        shutil.copy(os.path.join(art, "shot%d_%s.png" % (i, t["shots"])), os.path.join(d, "screenshot%d.png" % i))
+    if t["shots"] == "mock":
+        # screenshots rendered by running the built widgets in the EdgeTX mock (tools/edgetx_mock)
+        sys.path.insert(0, os.path.join(ROOT, "tools", "edgetx_mock"))
+        import render as emock
+        radio = {(480, 320): "tx15", (480, 272): "tx16s", (320, 240): "pa01", (800, 480): "tx16smk3"}[(W, H)]
+        for i, wdir in ((1, v["widgets"]["trails_dir"]), (2, v["widgets"]["inputs_dir"])):
+            emock.run(out, wdir, radio, {"live": True, "gps": True, "fm": "ACRO"}, os.path.join(d, "screenshot%d.png" % i))
+    else:
+        for i in (1, 2):
+            shutil.copy(os.path.join(art, "shot%d_%s.png" % (i, t["shots"])), os.path.join(d, "screenshot%d.png" % i))
     splash_im.save(os.path.join(d, "screenshot3.png"))
+
+
+def background(W, H):
+    """Theme background: black with a faint dot grid (2x2 dots every 12 px)."""
+    im = Image.new("RGB", (W, H), (0, 0, 0))
+    px = im.load()
+    for y in range(6, H, 12):
+        for x in range(6, W, 12):
+            for dx in (0, 1):
+                for dy in (0, 1):
+                    if x + dx < W and y + dy < H:
+                        px[x + dx, y + dy] = (20, 25, 28)
+    return im
 
 
 def build_leds(out, v):
     l = v["leds"]
+    if not l:
+        return
     leds.generate(os.path.join(out, "SCRIPTS", "RGBLED"), v["brand"], l["colour"], l["name"], pa01=l["pa01"], variants=l["variants"])
 
 
@@ -183,7 +209,68 @@ def build(name):
     print("%-22s %3d Lua files -> %s" % (name, n, os.path.relpath(z, ROOT)))
 
 
+ETHOS_README = """TR4CEPIL0T v{ver} (beta) for FrSky Ethos (X18RS / X20 family, 800x480; scales to other screens)
+
+INSTALL (FrSky Suite or the Ethos web simulator)
+  Lua Library > Install from local .zip > choose this zip.
+INSTALL (manual)
+  Copy the "tr4ce" folder into the "scripts" folder of the radio and restart the radio.
+
+SET UP
+- Add a screen with a full screen layout and choose the TPTrails widget (page 1).
+  Add a second screen with TPInputs (page 2).
+- Widget settings: accent and trail colours, stick mode, grid, alerts, and optional
+  manual choice of the LQ / RSSI / battery / flight mode / GPS / satellite sensors
+  (leave empty for automatic detection).
+- Tap the time (or press ENTER while the widget has focus) to cycle time > T1 > T2.
+- The last GPS position is saved to scripts/tr4ce/lastgps.txt.
+
+Use at your own risk. Always check the radio before flying.
+Not affiliated with FrSky, ExpressLRS or Betaflight.
+
+"""
+
+
+def build_ethos():
+    """FrSky Ethos pack: one script folder with both widgets + Lua library manifest."""
+    name = "TR4CEPIL0T_ETHOS"
+    out = os.path.join(DIST, name)
+    shutil.rmtree(out, ignore_errors=True)
+    os.makedirs(os.path.join(out, "tr4ce"))
+    common = open(os.path.join(SRC, "widgets", "common.lua")).read()
+    raw = common[common.index("local RAW = {"):common.index("local GLYPH = {}")].rstrip() + "\n"
+    code = open(os.path.join(SRC, "ethos", "main.lua")).read()
+    assert "--@RAW@" in code and "--@CREDITS@" in code
+    code = code.replace("--@RAW@\n", raw).replace("--@CREDITS@\n", credits("-- ").replace("v" + VERSION, "v" + ETHOS_VERSION + " (Ethos beta)"))
+    open(os.path.join(out, "tr4ce", "main.lua"), "w").write(code)
+    import json
+    manifest = {
+        "manifestVersion": 1, "name": "TR4CEPIL0T", "key": "com.tr4cepil0t.ethos",
+        "version": ETHOS_VERSION,
+        "introduction": "Dot-matrix TRON-style FPV widgets: gimbal trails, telemetry, GPS last position, inputs.",
+        "releaseNotes": {"format": "markdown", "content": "## %s\n- First Ethos version (TPTrails, TPInputs)" % ETHOS_VERSION},
+        "folder": "tr4ce", "files": ["tr4ce/main.lua"],
+    }
+    json.dump(manifest, open(os.path.join(out, "ethos_lua_manifest.json"), "w"), indent=2)
+    open(os.path.join(out, "README.txt"), "w").write(ETHOS_README.format(ver=ETHOS_VERSION) + credits(""))
+    n = check_lua(out)
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "lua54.py"), os.path.join(out, "tr4ce", "main.lua")],
+                       capture_output=True, text=True)
+    if r.returncode:
+        raise SystemExit("Lua 5.4 syntax check failed:\n" + r.stdout)
+    z = os.path.join(DIST, name + ".zip")
+    with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED) as zf:
+        for dp, _, fs in os.walk(out):
+            for f in fs:
+                p = os.path.join(dp, f)
+                zf.write(p, os.path.relpath(p, out))
+    print("%-22s %3d Lua files -> %s" % (name, n, os.path.relpath(z, ROOT)))
+
+
 if __name__ == "__main__":
-    names = sys.argv[1:] or DEFAULT_BUILD
+    names = sys.argv[1:] or DEFAULT_BUILD + ["ethos"]
     for n in names:
-        build(n)
+        if n.lower() in ("ethos", "tr4cepil0t_ethos"):
+            build_ethos()
+        else:
+            build(n)

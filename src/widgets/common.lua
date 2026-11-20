@@ -327,7 +327,8 @@ end
 
 -- per-frame values: grid, dot, small font height and alert blinking
 local function frameSetup(z, o)
-  local g = math.max(3, math.floor(math.min(z.w, z.h) / 48))
+  -- dot pitch from the screen size: 480x320 -> 6, 480x272 -> 5, 320x240 -> 5, 800x480 -> 8 (capped)
+  local g = math.min(8, math.max(3, math.floor(math.min(z.w, z.h) / 48)))
   local d = math.max(2, g - 2)
   local _, lh = lcd.sizeText("0", SMLSIZE)
   lh = lh or 12

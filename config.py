@@ -6,7 +6,8 @@ The other variants are kept for reference and can still be built by name.
 To add a variant, copy one entry and adjust it; build_all.py does the rest.
 """
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
+ETHOS_VERSION = "0.9.0"   # FrSky Ethos pack (beta until tested on an X18RS)
 KOFI_URL = "https://ko-fi.com/tr4cepil0t"
 REPO_URL = ""          # e.g. "https://github.com/<your-user>/TR4CEPIL0T" (shown in the pack README.txt and Lua headers)
 LICENSE = "GPL-3.0"
@@ -77,4 +78,30 @@ VARIANTS = {
     ),
 }
 
-DEFAULT_BUILD = ["TR4CEPIL0T_TX15"]
+# ---- Global EdgeTX packs: one per screen resolution (same widgets, no LED effects)
+GLOBAL_RADIOS = {
+    (480, 320): "RadioMaster TX15 / GX15, Jumper T15 / T15 Pro / T15-H7 / T22, Flysky PL18 / PL18EV / PL18U / ST16",
+    (480, 272): "RadioMaster TX16S / TX16S MkII, HelloRadioSky V15 / V16, Jumper T16 / T18 / T18H7, "
+                "FrSky X10 / X12S, iFlight Commando 14, Fatfish F16, Senduwing H17",
+    (320, 240): "Flysky PA01, HelloRadioSky V12",
+    (800, 480): "RadioMaster TX16S MK3",
+}
+for (gw, gh), radios in GLOBAL_RADIOS.items():
+    VARIANTS["TR4CEPIL0T_EdgeTX_%dx%d" % (gw, gh)] = dict(
+        screen=(gw, gh), global_pack=True, radios=radios,
+        widgets=dict(trails="TPTrails", inputs="TPInputs", trails_dir="TPTRAIL", inputs_dir="TPINPUT",
+                     sim="TPSim", sim_dir="TPSIM"),
+        brand="TR4CEPIL0T",
+        accent=ORANGE, warn=(255, 176, 0),
+        splash_accent=ORANGE, splash_brand=None,
+        leds=None,                                         # LED effects only in the TX15 pack
+        theme=dict(dir="TR4CE", name="TR4CEPIL0T", info="Black, orange and cyan dot-matrix (TPTrails)",
+                   colors=THEME_ORANGE, logo="logo_tr4ce.png", shots="mock"),
+        sound_prefix="tp",
+        alt_splashes=[("ibass.png", ORANGE, [("iBass&FPV", WHITE)]),
+                      ("squadq.png", RED, [("Squadding", WHITE), ("Quads", RED)])],
+    )
+VARIANTS["TR4CEPIL0T_TX15"]["radios"] = "RadioMaster TX15 / TX15 Max (optimised pack with LED effects)"
+
+GLOBAL_BUILD = ["TR4CEPIL0T_EdgeTX_%dx%d" % r for r in GLOBAL_RADIOS]
+DEFAULT_BUILD = ["TR4CEPIL0T_TX15"] + GLOBAL_BUILD

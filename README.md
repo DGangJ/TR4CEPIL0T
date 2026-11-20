@@ -1,7 +1,7 @@
 <p align="center"><img src="brand/TR4CEPIL0T_logo_transparente.png" alt="TR4CEPIL0T" width="520"></p>
 
 <p align="center"><b>Dot-matrix, TRON-style layout for EdgeTX FPV radios</b><br>
-RadioMaster TX15 / TX15 Max · widgets · theme · LED ring effects · sounds</p>
+EdgeTX colour radios (TX15, T15, TX16S, V15, PA01, TX16S MK3…) · FrSky Ethos (beta) · widgets · theme · LED effects · sounds</p>
 
 <p align="center">[![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20TR4CEPIL0T-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/tr4cepil0t)</p>
 
@@ -20,7 +20,7 @@ battery, flight mode, GPS and timers.
 - **TPInputs** — page 2: sticks, pots, gyro, switches and extra telemetry.
 - **TPSim** — a page for a simulator model: RF state, session time, flights, virtual pack timer.
 - **Theme** matching the widgets, **boot and shutdown splash** (plus alternative splashes).
-- **LED ring effects** for the gimbal rings (10 effects, 9 of them in 10 colours).
+- **LED ring effects** for the gimbal rings (TX15 pack only: 10 effects, 9 of them in 10 colours).
 - **TRON-style sound effects** for arming, flight modes, battery and link alerts.
 
 <p align="center">
@@ -29,17 +29,40 @@ battery, flight mode, GPS and timers.
 <img src="docs/images/sim.png" width="260" alt="Simulator page">
 </p>
 
+## Which pack?
+
+| Pack | Radios |
+|---|---|
+| `TR4CEPIL0T_TX15.zip` | **RadioMaster TX15 / TX15 Max** — optimised, with the gimbal LED effects |
+| `TR4CEPIL0T_EdgeTX_480x320.zip` | RadioMaster GX15, Jumper T15 / T15 Pro / T15-H7 / T22, Flysky PL18 / PL18EV / PL18U / ST16 |
+| `TR4CEPIL0T_EdgeTX_480x272.zip` | RadioMaster TX16S / MkII, HelloRadioSky V15 / V16, Jumper T16 / T18 / T18H7, FrSky X10 / X12S, iFlight Commando 14, Fatfish F16, Senduwing H17 |
+| `TR4CEPIL0T_EdgeTX_320x240.zip` | Flysky PA01, HelloRadioSky V12 |
+| `TR4CEPIL0T_EdgeTX_800x480.zip` | RadioMaster TX16S MK3 |
+| `TR4CEPIL0T_ETHOS.zip` | FrSky Ethos radios, X18RS / X20 family (beta, see below) |
+
+**TX15 pack:** dedicated to the RadioMaster TX15 / TX15 Max and tuned on the radio: everything in the Global
+packs plus the LED effects for the gimbal rings (geometry confirmed on the TX15 Max) and the TX15 switch layout.
+
+The **Global EdgeTX packs** (`TR4CEPIL0T_EdgeTX_<resolution>`) share the same widgets; they only differ in the splash and theme images for each screen size.
+On page 2 the sticks, pots, sliders and switches are detected from the radio, including how many positions each
+switch has.
+
+<p align="center">
+<img src="docs/images/edgetx_480x272_trails.png" width="400" alt="480x272 page 1">
+<img src="docs/images/edgetx_480x272_inputs.png" width="400" alt="480x272 page 2">
+</p>
+
 ## Requirements
 
-- RadioMaster TX15 / TX15 Max (480x320 colour screen) with **EdgeTX 2.10 or newer**.
+- An EdgeTX colour radio from the table above with **EdgeTX 2.11 or newer**.
 - Telemetry from an ExpressLRS / Crossfire receiver; Betaflight or INAV for flight mode and GPS.
 
 ## Install
 
-1. Download `TR4CEPIL0T_TX15.zip` from the [latest release](../../releases/latest).
+1. Download the pack for your radio from the [latest release](../../releases/latest).
 2. Back up your SD card.
-3. Unzip and copy the folders (`WIDGETS`, `IMAGES`, `SCRIPTS`, `THEMES`, `SOUNDS`) to the **root of the SD card**,
-   merging with the existing folders. Restart the radio.
+3. Unzip and copy the folders (`WIDGETS`, `IMAGES`, `THEMES`, `SOUNDS`, and `SCRIPTS` in the TX15 pack) to the
+   **root of the SD card**, merging with the existing folders. Restart the radio.
 
 ## Set up
 
@@ -47,7 +70,7 @@ battery, flight mode, GPS and timers.
 2. **Screens:** Model > Screens > add a screen with layout **Full screen (1x1)**, top bar and sliders off,
    and choose the `TPTrails` widget. Add a second screen with `TPInputs`.
 3. **Widget options** (colours, stick mode, alerts): long press the widget > Widget settings.
-4. **LED effects:** Special Functions > **RGB leds** > choose a script (e.g. `iOrbit`, `iStick`, `ScanC`).
+4. **LED effects (TX15 pack):** Special Functions > **RGB leds** > choose a script (e.g. `iOrbit`, `iStick`, `ScanC`).
 5. **Sounds:** Special Functions > **Play Track**. They are installed in `SOUNDS/pt`; move them to `SOUNDS/en`
    (or your voice-pack folder) if needed.
 6. **Alternative splash:** copy an image from `IMAGES/SPLASH/` over `IMAGES/splash.png` (and `shutdown.png`).
@@ -93,7 +116,7 @@ For a dedicated "Sim Mode" model (no telemetry or GPS needed).
 - With `Lost` / `Alerts`, when telemetry drops the last values stay in grey and the date becomes a blinking `LOST`.
 - USB charging indicator: inferred from a steadily rising radio voltage (no Lua API exists for it).
 
-## LED effects (`SCRIPTS/RGBLED`)
+## LED effects (`SCRIPTS/RGBLED`, TX15 pack only)
 
 Use: Model Settings > Special Functions (or Global Functions) > function **RGB leds**, value = script name.
 
@@ -125,6 +148,25 @@ LED 0 of each ring faces the centre of the radio; the left ring counts anticlock
 
 `tpon` / `tpoff` (startup / shutdown), `armed`, `disarm`, `fmacro`, `fmangl`, `fmhor`,
 `lqlow`, `batlow`, `batcri`, `tellst`, `telok`, `click`.
+
+## FrSky Ethos version (beta)
+
+TR4CEPIL0T also runs on **FrSky Ethos** radios, designed for the **X18RS** (800x480) and scaling to other screens.
+It contains the two pages (`TPTrails`, `TPInputs`) with the same look; no LED effects or sounds.
+
+<p align="center">
+<img src="docs/images/ethos_page1.png" width="400" alt="Ethos page 1">
+<img src="docs/images/ethos_page2.png" width="400" alt="Ethos page 2">
+</p>
+
+- Download `TR4CEPIL0T_ETHOS.zip` from the releases and install it with **FrSky Suite > Lua Library > Install from local .zip**,
+  or copy the `tr4ce` folder into the radio's `scripts` folder.
+- Add a full screen layout with `TPTrails`, and a second screen with `TPInputs`.
+- Sticks, pots, switches and function switches are read from the radio with their own names.
+- Telemetry sensors (ELRS/CRSF) are detected automatically; each one can also be chosen in the widget settings.
+- You can try it without a radio in FrSky's web simulator (Upload > Upload a Lua plugin).
+
+This version is a **beta**: feedback from Ethos users is very welcome in Issues.
 
 ## Support the project
 

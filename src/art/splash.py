@@ -29,13 +29,13 @@ def text(d,s,f,x,y,p,ds,colfn):
 def splash(W,H,acc,brand=None,brandcol=None):
     """brand: list of (text, colour) per word; None = public subtitle"""
     im=Image.new("RGB",(W,H),(0,0,0)); d=ImageDraw.Draw(im)
-    p=6 if W>=480 else 4; ds=max(1,int(p*0.78))
+    p=10 if W>=800 else (6 if W>=480 else 4); ds=max(1,int(p*0.78))
     gp=p*2
     for y in range(gp//2,H,gp):
         for x in range(gp//2,W,gp): d.rectangle([x,y,x+max(1,p//4),y+max(1,p//4)],fill=(22,28,31))
     s="TR4CEPIL0T"; tw=width(s,BIG,p); th=7*p; trail=10
     if brand:
-        bp=4 if W>=480 else 3; bs=" ".join(w for w,_ in brand); bw=width(bs,F8,bp); bh=8*bp; gap=4*p
+        bp=6 if W>=800 else (4 if W>=480 else 3); bs=" ".join(w for w,_ in brand); bw=width(bs,F8,bp); bh=8*bp; gap=4*p
     else:
         bp=max(1,p//2); bw=width("EDGETX FPV COPILOT",SM,bp); bh=5*bp; gap=3*p
     x0=(W-tw)//2   # centre on the word only; the trail sits to its left

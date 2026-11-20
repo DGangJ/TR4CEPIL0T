@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.1.0 — Global EdgeTX packs
+- New packs for every landscape EdgeTX colour screen: `TR4CEPIL0T_EdgeTX_480x320`, `_480x272`, `_320x240`, `_800x480`
+  (same widgets, splash and theme for each size, sounds, no LED effects).
+- `TR4CEPIL0T_TX15` stays the optimised pack with the gimbal LED effects.
+- Page 2: switches and their number of positions read from the radio switch list; switches set to "None" hidden;
+  more pot/slider names (P1-P3, 6POS, SL1/SL2).
+- Layout: dot size capped for 800x480 screens; page 2 switch tiles scale with the screen; TPSim fits 320x240.
+- Theme backgrounds generated for every resolution; splash sized for 800x480.
+- EdgeTX API mock (`tools/edgetx_mock`) to run the real widgets on a PC at every resolution.
+
+## Ethos 0.9.0 (beta)
+- New FrSky Ethos pack for the X18RS (800x480, scales to other screens): TPTrails and TPInputs widgets.
+- Sticks, pots, switches and function switches read from the radio with their own names.
+- Automatic CRSF/ELRS sensor detection with optional manual choice; last GPS position saved.
+- PC preview tool (Ethos API mock) and Lua 5.4 syntax check in the build.
+
 ## v1.0.0 — first public release
 - Public TR4CEPIL0T pack for the RadioMaster TX15 / TX15 Max.
 - GPL-3.0 licence, Ko-fi support link, version and credits in every widget header and in the pack README.txt.

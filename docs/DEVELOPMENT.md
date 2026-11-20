@@ -1,5 +1,7 @@
 # TR4CEPIL0T — development notes
 
+See also [PROJECT_HISTORY.md](PROJECT_HISTORY.md) for the decisions taken so far and the next steps.
+
 ## Variants
 
 Everything is generated from one source tree by `build_all.py`, in 4 variants:
@@ -26,6 +28,35 @@ LICENSE               GNU GPL v3.0
 brand/                TR4CEPIL0T logo (black, transparent) and "T4" icon
 dist/                 built packs (not committed; published as GitHub Release assets)
 ```
+
+## Global EdgeTX packs
+
+- `GLOBAL_RADIOS` in `config.py` creates one pack per screen resolution (`TR4CEPIL0T_EdgeTX_<W>x<H>`):
+  same widgets as the TX15 pack, no LED scripts, splash and theme background rendered for that size, theme
+  screenshots rendered by running the built widgets in the EdgeTX mock.
+- Layout: dot pitch `g = min(8, min(w, h) / 48)`; compact labels below 400 px wide; page 2 tiles scale with the width.
+- Switches on page 2: candidates SA-SP and SW1-SW6 (only those `getFieldInfo` finds); the number of positions comes
+  from the `switches()` iterator (2POS switches have no middle position, "None" switches have none and are hidden).
+  If the iterator is missing or the names do not match, the old fallback is used (3-position once seen in the middle).
+- PC preview: `python3 tools/edgetx_mock/render.py dist/<pack> out_dir` runs the real widgets in a small EdgeTX API
+  mock (`tools/edgetx_mock/mock.lua`) for TX15, TX16S, V15, PA01 and TX16S MK3 profiles.
+- To verify on real radios: the `switches()` position names (UTF-8 arrows), switch/pot names on each radio,
+  fonts and spacing on 800x480, theme background naming.
+
+## FrSky Ethos port
+
+- Source: `src/ethos/main.lua` (both widgets in one script). The build inserts the dot-matrix font from
+  `src/widgets/common.lua` (`--@RAW@`) and the credits (`--@CREDITS@`), and writes
+  `dist/TR4CEPIL0T_ETHOS.zip` with `ethos_lua_manifest.json` + `tr4ce/main.lua` (`python3 build_all.py ethos`).
+- Ethos API differences: widgets are registered with `system.registerWidget` (key <= 7 chars),
+  `wakeup` reads values and calls `lcd.invalidate()` only on change, `paint` only draws.
+  Settings use `configure` (form fields) and `read`/`write` (storage).
+- Sensors are found by name (CRSF/ELRS names first) and can be overridden in the widget settings.
+- Version: `ETHOS_VERSION` in `config.py` (beta until tested on an X18RS).
+- PC preview: `python3 tools/ethos_mock/render.py out_dir` runs the real script against a small Ethos API mock
+  (`tools/ethos_mock/mock.lua`, through the system liblua5.4) and renders PNGs. `tools/lua54.py file.lua` checks syntax.
+- To verify on the radio / web simulator: sensor names and units, stick value range (assumed +-1024),
+  switch position detection, `os.date`, touch/ENTER events, writing `SCRIPTS:/tr4ce/lastgps.txt`.
 
 ## Building
 
