@@ -9,7 +9,7 @@ To add a variant, copy one entry and adjust it; build_all.py does the rest.
 VERSION = "1.1.0"
 ETHOS_VERSION = "0.9.0"   # FrSky Ethos pack (beta until tested on an X18RS)
 KOFI_URL = "https://ko-fi.com/tr4cepil0t"
-REPO_URL = ""          # e.g. "https://github.com/<your-user>/TR4CEPIL0T" (shown in the pack README.txt and Lua headers)
+REPO_URL = "https://github.com/DGangJ/TR4CEPIL0T"   # shown in the pack README.txt and Lua headers
 LICENSE = "GPL-3.0"
 
 WHITE = (215, 242, 247)
@@ -105,3 +105,12 @@ VARIANTS["TR4CEPIL0T_TX15"]["radios"] = "RadioMaster TX15 / TX15 Max (optimised 
 
 GLOBAL_BUILD = ["TR4CEPIL0T_EdgeTX_%dx%d" % r for r in GLOBAL_RADIOS]
 DEFAULT_BUILD = ["TR4CEPIL0T_TX15"] + GLOBAL_BUILD
+
+# ---- optional local packs (not in git): local/config_local.py may add entries to VARIANTS and LOCAL_BUILD.
+# Used for private packs that are built with every update but never published.
+import os as _os
+LOCAL_BUILD = []
+_local = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "local", "config_local.py")
+if _os.path.exists(_local):
+    exec(compile(open(_local).read(), _local, "exec"))
+DEFAULT_BUILD = DEFAULT_BUILD + LOCAL_BUILD

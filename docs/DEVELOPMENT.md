@@ -4,16 +4,27 @@ See also [PROJECT_HISTORY.md](PROJECT_HISTORY.md) for the decisions taken so far
 
 ## Variants
 
-Everything is generated from one source tree by `build_all.py`, in 4 variants:
+Everything is generated from one source tree by `build_all.py`; the packs are defined in `config.py`:
 
-| Variant | Radio | Splash | Widgets | Main colour |
-|
+| Pack | Radios | Notes |
+|---|---|---|
+| `TR4CEPIL0T_TX15` | RadioMaster TX15 / TX15 Max | optimised pack, LED effects, TPSim |
+| `TR4CEPIL0T_EdgeTX_<W>x<H>` | every landscape EdgeTX colour radio (480x320, 480x272, 320x240, 800x480) | Global packs, no LED effects |
+| `TR4CEPIL0T_ETHOS` | FrSky Ethos (X18RS / X20 family) | beta, built with `python3 build_all.py ethos` |
+| `iBassFPV_TX15`, `SquaddingQuads_TX15`, `SquaddingQuads_PA01` | archived | only built by name |
+
+## Local private packs
+
+`config.py` runs `local/config_local.py` when it exists. The `local/` folder is in `.gitignore`, so it can hold
+private packs that are built with every update but never committed or published: add entries to `VARIANTS` and
+list them in `LOCAL_BUILD` (they are appended to `DEFAULT_BUILD`). A variant can replace the boot and shutdown
+images with `boot_image` / `shutdown_image`, callables `(W, H, variant) -> PIL image`.
 
 ## Repository structure
 
 ```
 build_all.py          builds dist/<variant>/ and dist/<variant>.zip for every variant
-config.py             the 4 variants: names, colours, splash text, LED colour, theme, sound prefix
+config.py             the packs: names, colours, splash text, LED colour, theme, sound prefix
 src/widgets/          Lua sources: common.lua (shared) + trails_body.lua + inputs_body.lua + sim_body.lua
 src/leds/leds.py      LED effect generator (TX15 ring geometry, colour variants, PA01 mode)
 src/art/splash.py     splash/shutdown renderer (dot-matrix fonts)
@@ -97,7 +108,30 @@ substituted. A Lua balance check runs on every build.
 
 ## Roadmap (ideas for future development)
 
-Ideas for future versions (not scheduled):
+**Next: v1.2 — GPS track and crash finder** (approved 2026-11-20, to start the week of 2026-11-23)
+- Record the GPS position while armed (every ~1 s or ~10 m; ring buffer of 200-300 points) and save the track
+  to the SD card next to `lastgps.txt`, so it survives a restart.
+- On every disarm (normal landing) and on telemetry loss, the GPS block opens the **TRACE view**: dotted path
+  scaled to fit, orange pin on the last fix, north marker. After a normal
+  disarm it doubles as a flight summary (flight time, distance flown, max distance from home); after a loss it is
+  the crash finder (pin, coordinates, distance/bearing from home). The name TR4CEPIL0T comes from this "trace".
+- "Home" = first fix after arming; show distance and bearing from home to the last position (e.g. `LAST 240 M NE`).
+- QR code with the last coordinates (opens a map on the phone): EdgeTX 2.11+ LVGL, Ethos `lcd.renderQrCode`.
+- Targets: TX15 pack, Global EdgeTX packs and the Ethos version. No map tiles (not available on the radio).
+- Checks: memory and CPU on 480x272 / 320x240 radios, GPS update rate over CRSF, behaviour without GPS.
+
+**Then: TPDrone — pixel drone page** (alternative to TPTrails; feasibility checked 2026-11-20)
+- Same top bar and bottom line as TPTrails (flight mode, GPS/TRACE, time and timers); the middle shows a pixel quad
+  seen from above instead of the stick trails.
+- Motion: yaw turns the quad, roll / pitch tilt it (arms foreshortened), throttle scales it and moves its shadow;
+  props spin only while armed; tumble + "CRASH" on telemetry loss while armed.
+- Real attitude when available: with ELRS + Betaflight the CRSF attitude sensors (`Ptch`, `Roll`, `Yaw`) can drive
+  the quad with the real attitude; without them it falls back to the stick inputs (simulated, labelled as such).
+- Drawing: a handful of lines, filled circles and rectangles per frame (cheaper than the trails grid), snapped to
+  the dot pitch for the dot-matrix look; EdgeTX (`lcd.drawLine`, `lcd.drawFilledCircle`) and Ethos equivalents.
+- Checks: attitude sensor names / units and update rate over CRSF, CPU on 480x272 / 320x240 radios.
+
+Other ideas for future versions (not scheduled):
 1. **One model for every quad:** read the craft name from Betaflight (MSP over CRSF) and load a per-quad
    profile (timers, alarms, cell count, layout). Requires the same ELRS binding phrase on every quad.
 2. **Rates on the radio:** read/edit Betaflight rates via MSP (only while disarmed), with a rate-curve view.

@@ -59,7 +59,7 @@ switch has.
 
 ## Install
 
-1. Download the pack for your radio from the [latest release](../../releases/latest).
+1. Download the pack for your radio from the [latest release](https://github.com/DGangJ/TR4CEPIL0T/releases/latest).
 2. Back up your SD card.
 3. Unzip and copy the folders (`WIDGETS`, `IMAGES`, `THEMES`, `SOUNDS`, and `SCRIPTS` in the TX15 pack) to the
    **root of the SD card**, merging with the existing folders. Restart the radio.
@@ -175,7 +175,7 @@ you can buy me a coffee on Ko-fi:
 
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20TR4CEPIL0T-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/tr4cepil0t)
 
-Bug reports and ideas are welcome in [Issues](../../issues). Please include your radio model, EdgeTX version
+Bug reports and ideas are welcome in [Issues](https://github.com/DGangJ/TR4CEPIL0T/issues). Please include your radio model, EdgeTX version
 and a photo of the screen.
 
 ## Building from source

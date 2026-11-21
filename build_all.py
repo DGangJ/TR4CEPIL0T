@@ -3,7 +3,7 @@
 Builds every pack defined in config.py into dist/<variant>/ and dist/<variant>.zip.
 
     python3 build_all.py            # DEFAULT_BUILD (the public TR4CEPIL0T_TX15 pack)
-    python3 build_all.py iBassFPV_TX15
+    python3 build_all.py ethos
 
 Each pack is copied to the root of the radio SD card as is:
     WIDGETS/<trails>/main.lua, WIDGETS/<inputs>/main.lua
@@ -102,8 +102,9 @@ def build_images(out, v):
     im = splash(W, H, v["splash_accent"], v["splash_brand"])
     d = os.path.join(out, "IMAGES")
     os.makedirs(d, exist_ok=True)
-    im.save(os.path.join(d, "splash.png"))
-    im.save(os.path.join(d, "shutdown.png"))
+    # a variant may supply its own boot / shutdown images: callables (W, H, variant) -> PIL image
+    (v["boot_image"](W, H, v) if v.get("boot_image") else im).save(os.path.join(d, "splash.png"))
+    (v["shutdown_image"](W, H, v) if v.get("shutdown_image") else im).save(os.path.join(d, "shutdown.png"))
     alts = v.get("alt_splashes", [])
     if alts:
         ad = os.path.join(d, "SPLASH")

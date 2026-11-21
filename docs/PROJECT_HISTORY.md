@@ -4,7 +4,7 @@ Backup summary of how the project was built, what was decided and why, and what 
 Read this first when continuing the project in a new session (together with `README.md`,
 `docs/DEVELOPMENT.md` and `CHANGELOG.md`).
 
-Last update: 2026-11-20.
+Last update: 2026-11-20 (after the v1.1.0 release).
 
 ---
 
@@ -23,12 +23,13 @@ Last update: 2026-11-20.
 | 2026-11-20 | **FrSky Ethos** port (beta 0.9.0) for the X18RS (800x480): TPTrails + TPInputs, sticks/switches/names read from the radio, ELRS sensor auto-detection, PC mock to run the real script. Fix: switch ranges read from the radio. |
 | 2026-11-20 | Research of EdgeTX colour radios; plan approved for a **Global EdgeTX pack** + an **optimised TX15 pack** (see section 8). |
 | 2026-11-20 | **v1.1.0**: Global EdgeTX packs per resolution (480x320, 480x272, 320x240, 800x480), switch positions read from the radio, EdgeTX PC mock. |
+| 2026-11-20 | v1.1.0 **published** on GitHub (`github.com/DGangJ/TR4CEPIL0T`, one Release with one zip per pack). README Ko-fi button fixed (HTML inside the centred block). |
 
 ## 2. Packs
 
 | Pack | Status | Contents |
 |---|---|---|
-| `TR4CEPIL0T_TX15` | **v1.0.0, public** | TPTrails, TPInputs, TPSim, theme, splash/shutdown (+ alternative iBass&FPV / Squadding Quads splashes), 100 LED scripts, sounds |
+| `TR4CEPIL0T_TX15` | **v1.1.0, public** | TPTrails, TPInputs, TPSim, theme, splash/shutdown (+ alternative iBass&FPV / Squadding Quads splashes), 100 LED scripts, sounds |
 | `TR4CEPIL0T_ETHOS` | **0.9.0 beta**, being tested in the Ethos web simulator | TPTrails, TPInputs (no LEDs, no sounds) |
 | `iBassFPV_TX15` | archived (personal) | same as TX15 with iBass&FPV branding (iBFTrails / iBFInputs) |
 | `SquaddingQuads_TX15` / `_PA01` | archived | red variant (SQTrails / SQInputs), PA01 compact layout |
@@ -85,6 +86,11 @@ trails with axis %, ARMED / SAFE, virtual pack timer (counts while armed, amber 
 
 ## 7. Distribution
 
+- Repository: **https://github.com/DGangJ/TR4CEPIL0T**. The README is sometimes edited on github.com:
+  check for remote commits and pull before overwriting. `REPO_URL` in `config.py` is set; it reaches the
+  packs from the next version (v1.1.0 as published has no source line in the pack README.txt).
+- Releases: one Release per version with every pack as a separate zip; Ethos as a separate pre-release when tested.
+- Private packs live in the ignored `local/` folder (see `docs/DEVELOPMENT.md`) and are never published.
 - GitHub: source in the repo, built zips as Release assets (`v1.0.0` with `TR4CEPIL0T_TX15.zip`).
   Step-by-step with GitHub Desktop (Add local repository > create repository > Publish).
 - Support: Ko-fi `ko-fi.com/tr4cepil0t` (Sponsor button via `.github/FUNDING.yml`, README badges, pack README).
@@ -107,6 +113,14 @@ trails with axis %, ARMED / SAFE, virtual pack timer (counts while armed, amber 
 3. Validation: EdgeTX API mock on the PC (like the Ethos one) at all four resolutions; real testers wanted,
    at least one 480x272 radio (TX16S).
 4. Ethos: wait for the user's simulator / radio tests, then fix and release.
+
+## 8b. Next session (week of 2026-11-23)
+
+- **v1.2: GPS track + crash finder** (track view with path and last-fix pin, home distance/bearing, track saved
+  to SD, QR code with the coordinates). Details in `docs/DEVELOPMENT.md` > Roadmap. Start with a mockup on the radio.
+- After v1.2: **TPDrone** page (pixel quad that turns and tilts with the sticks, or with the real attitude from the
+  CRSF `Ptch` / `Roll` / `Yaw` sensors when available). Details in `docs/DEVELOPMENT.md` > Roadmap.
+- Ethos beta: wait for the user's tests in the simulator / X18RS.
 
 ## 9. Open items to verify
 
